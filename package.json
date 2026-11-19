@@ -1,0 +1,24 @@
+{
+  "name": "personal-data-safety",
+  "version": "1.0.0",
+  "description": "Учебное веб-приложение для проверки своего email по базе известных утечек XposedOrNot. Проект находится на этапе согласования темы и стека.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DimasFantomasA/personal-data-safety.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/DimasFantomasA/personal-data-safety/issues"
+  },
+  "homepage": "https://github.com/DimasFantomasA/personal-data-safety#readme",
+  "dependencies": {
+    "pg": "^8.23.1"
+  }
+}
