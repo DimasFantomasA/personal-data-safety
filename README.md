@@ -154,3 +154,25 @@ Invoke-RestMethod -Method Post `
 
 Для остановки сервера используется сочетание клавиш `Ctrl + C` в первом окне PowerShell.
 
+## Выполненные работы: тестирование
+
+В рамках задачи по покрытию проекта тестами добавлено **70 автотестов**. Все тесты изолированы: сеть и база данных не используются, внешние зависимости (`fetch`, `pg.Pool`, `db`, `xposedOrNot`). Прогон занимает около **0.7 секунды**
+
+### Что сделано
+
+- Настроено тестовое окружение: `vitest`, `supertest`, `@vitest/coverage-v8`, скрипты `test`, `test:watch`, `test:coverage` в `package.json`.
+- Написаны модульные тесты для `src/utils/validation.mjs` и `src/utils/errors.mjs`.
+- Написаны тесты для `src/services/xposedornot.mjs`.
+- Написаны интеграционные тесты для `src/app.mjs` через `supertest`: маршрут `POST /api/email/check`, кэш hit/miss, валидация.
+- Добавлен smoke-тест, проверяющий, что все модули импортируются и экспортируют нужные функции.
+
+### Файлы тестов
+
+| Файл | Тестов | Что проверяет |
+| :--- | ---: | :--- |
+| `tests/errors.test.mjs` | 9 | Иерархия классов ошибок, `statusCode`, `retryAfterSeconds`, `cause` |
+| `tests/validation.test.mjs` | 37 | `normalizeEmail`, `normalizeDomain`, IDN, все ветки `ValidationError` |
+| `tests/xposedornot.test.mjs` | 6 | `checkEmail` и `fetchDomainSummary` с `fetch` (ответы 200 и 429) |
+| `tests/db.queries.test.mjs` | 8 | Кэш email и сводка по домену; HMAC вместо email в SQL |
+| `tests/app.integration.test.mjs` | 8 | `createApp`, `POST /api/email/check`, кэш hit/miss, проброс 429 |
+| `tests/smoke.test.mjs` | 2 | Импорт `xposedornot.mjs` и `app.mjs`, наличие экспортов |
