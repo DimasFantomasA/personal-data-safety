@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import express from 'express';
 import * as database from '../db/queries.mjs';
 import { XposedOrNotClient } from './services/xposedornot.mjs';
@@ -229,6 +230,10 @@ export function createApp({
       return next(error);
     }
   });
+
+  const frontendPath = fileURLToPath(new URL('../docs/', import.meta.url));
+  
+  app.use(express.static(frontendPath));
 
   app.use((_request, response) => {
     response.status(404).json({
