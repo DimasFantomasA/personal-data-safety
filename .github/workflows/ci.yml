@@ -2,7 +2,7 @@ name: CI Tests
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "test/user-flow" ]
   pull_request:
     branches: [ "main" ]
 
@@ -28,14 +28,6 @@ jobs:
       env:
         EMAIL_CACHE_SECRET: "dummy_secret_for_ci"
 
-    - name: Устанавливаем браузер Chromium для Playwright
-      run: npx playwright install --with-deps chromium
-
-    - name: Запускаем браузерные тесты (E2E)
-      run: npm run test:e2e
-      env:
-        EMAIL_CACHE_SECRET: "dummy_secret_for_ci"
-
     - name: Создаем фиктивный .env для запуска сервера
       run: |
         echo "EMAIL_CACHE_SECRET=dummy_secret_for_ci" >> .env
@@ -46,3 +38,5 @@ jobs:
 
     - name: Запускаем браузерные тесты (E2E)
       run: npm run test:e2e
+      env:
+        EMAIL_CACHE_SECRET: "dummy_secret_for_ci"
