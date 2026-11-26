@@ -24,6 +24,7 @@ test.describe('Интерфейс проверки утечек', () => {
     await page.locator('#email-input').fill('test@example.com');
 
     await page.locator('#email-form button[type="submit"]').click();
+
     const resultBlock = page.locator('#email-result');
     await expect(resultBlock).toContainText('Обнаружено утечек: 2');
     await expect(resultBlock).toContainText('Adobe');
@@ -32,6 +33,7 @@ test.describe('Интерфейс проверки утечек', () => {
 
   test('Валидация: ошибка при неверном email', async ({ page }) => {
     await page.goto('/');
+    
     await page.locator('#email-input').fill('неверный-email');
     await page.locator('#email-form button[type="submit"]').click();
 
@@ -62,6 +64,6 @@ test.describe('Интерфейс проверки утечек', () => {
 
     const resultBlock = page.locator('#domain-result');
     await expect(resultBlock).toContainText('adobe.com');
-    await expect(resultBlock).toContainText('150 000'); // Проверяем форматирование чисел
+    await expect(resultBlock).toContainText('150 000'); 
   });
 });
