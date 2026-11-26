@@ -1,0 +1,42 @@
+name: CI Tests
+
+on:
+  push:
+    branches: [ "main", "test/user-flow" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Скачиваем код
+      uses: actions/checkout@v4
+
+    - name: Устанавливаем Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Устанавливаем зависимости
+      run: npm ci
+
+    - name: Запускаем Unit и Integration тесты (Vitest)
+      run: npm test
+      env:
+        EMAIL_CACHE_SECRET: "dummy_secret_for_ci"
+
+    - name: Создаем фиктивный .env для запуска сервера
+      run: |
+        echo "EMAIL_CACHE_SECRET=dummy_secret_for_ci" >> .env
+        echo "DATABASE_URL=postgres://dummy:password@localhost:5432/dummydb" >> .env
+
+    - name: Устанавливаем браузер Chromium для Playwright
+      run: npx playwright install --with-deps chromium
+
+    - name: Запускаем браузерные тесты (E2E)
+      run: npm run test:e2e
+      env:
+        EMAIL_CACHE_SECRET: "dummy_secret_for_ci"

@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "start": "node --env-file=.env src/server.mjs",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test"
   },
   "repository": {
     "type": "git",
@@ -22,5 +25,11 @@
   "dependencies": {
     "express": "^5.3.0",
     "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.1",
+    "@vitest/coverage-v8": "^5.1.1",
+    "supertest": "^7.3.2",
+    "vitest": "^5.1.1"
   }
 }
