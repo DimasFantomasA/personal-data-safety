@@ -180,3 +180,63 @@ Invoke-RestMethod -Method Post `
   - Реализована поддержка prefers-reduced-motion (анимации отключаются, если у пользователя в системе включен режим экономии энергии).
   - Для форм добавлена нативная HTML-валидация и кастомные сообщения об ошибках под полями ввода.
 - Адаптивность: Интерфейс корректно отображается на мобильных устройствах (элементы перестраиваются в колонку, уменьшаются отступы и шрифты).
+
+## Тестирование
+
+В рамках задачи по покрытию проекта тестами добавлено **70 автотестов**.  
+Все тесты изолированы: сеть и база данных не используются, внешние зависимости (`fetch`, `pg.Pool`, `db`, `xposedOrNot`) замоканы.  
+Прогон быстрых тестов занимает около **0.7 секунды**.
+
+### Что сделано
+
+- Настроено тестовое окружение: `vitest`, `supertest`, `@vitest/coverage-v8`.
+- Добавлены скрипты `test`, `test:watch`, `test:coverage` в `package.json`.
+- Написаны модульные тесты для `src/utils/validation.mjs` и `src/utils/errors.mjs`.
+- Написаны тесты для `src/services/xposedornot.mjs`.
+- Написаны интеграционные тесты для `src/app.mjs` через `supertest`: маршрут `POST /api/email/check`, кэш hit/miss, валидация.
+- Добавлен smoke-тест, проверяющий, что все модули импортируются и экспортируют нужные функции.
+- Добавлены E2E-тесты на Playwright для проверки интерфейса.
+- Настроен CI-пайплайн GitHub Actions.
+
+### Файлы тестов
+
+| Файл | Тестов | Что проверяет |
+| :--- | ---: | :--- |
+| `tests/errors.test.mjs` | 9 | Иерархия классов ошибок, `statusCode`, `retryAfterSeconds`, `cause` |
+| `tests/validation.test.mjs` | 37 | `normalizeEmail`, `normalizeDomain`, IDN, все ветки `ValidationError` |
+| `tests/xposedornot.test.mjs` | 6 | `checkEmail` и `fetchDomainSummary` с `fetch` (ответы 200 и 429) |
+| `tests/db.queries.test.mjs` | 8 | Кэш email и сводка по домену; HMAC вместо email в SQL |
+| `tests/app.integration.test.mjs` | 8 | `createApp`, `POST /api/email/check`, кэш hit/miss, проброс 429 |
+| `tests/smoke.test.mjs` | 2 | Импорт `xposedornot.mjs` и `app.mjs`, наличие экспортов |
+
+### Браузерные тесты (E2E) и CI/CD
+
+В дополнение к модульным и интеграционным тестам добавлены сквозные E2E-тесты, которые проверяют работу интерфейса глазами пользователя.
+
+- **Playwright**: сценарий `tests/e2e/app.spec.mjs` проверяет ввод email, валидацию ошибок, отрисовку карточек утечек и проверку доменов. Сетевые запросы к API перехватываются средствами Playwright, поэтому тесты работают быстро и не зависят от интернета или реальной БД.
+- **Разделение прогонов**: файл `vitest.config.mjs` исключает `tests/e2e` из быстрого прогона `npm test`. Для браузерных тестов используется отдельная команда `npm run test:e2e`.
+
+### GitHub Actions (CI)
+
+Настроен автоматический пайплайн `.github/workflows/ci.yml`. При каждом пуше GitHub Actions:
+
+1. Устанавливает зависимости: `npm ci`.
+2. Запускает быстрые модульные и интеграционные тесты: `npm test`.
+3. Устанавливает браузер Chromium для Playwright.
+4. Создаёт фиктивный `.env`, чтобы сервер мог запуститься без реальных секретов.
+5. Запускает браузерные E2E-тесты: `npm run test:e2e`.
+
+### Команды
+
+```bash
+# быстрые unit/integration-тесты
+npm test
+
+# тесты в watch-режиме
+npm run test:watch
+
+# покрытие
+npm run test:coverage
+
+# E2E-тесты Playwright
+npm run test:e2e
