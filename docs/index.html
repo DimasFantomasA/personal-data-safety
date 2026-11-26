@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Проверка утечек личных данных</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script>
+    if (localStorage.getItem('theme') === 'dark') {
+      document.documentElement.classList.add('dark-theme');
+    }
+  </script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="bg-glow" aria-hidden="true"></div>
+  <div class="bg-noise" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <div class="header-top">
+      <div class="status-pill">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span>База утечек XposedOrNot</span>
+      </div>
+      <button id="theme-toggle" class="theme-btn" type="button" aria-label="Переключить тему" title="Переключить тему">
+        <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+        </svg>
+        <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+        </svg>
+      </button>
+    </div>
+
+    <h1>Проверка утечек<br><span class="title-accent">личных данных</span></h1>
+    <p class="subtitle">Мониторинг компрометации почтовых адресов и корпоративных доменов</p>
+  </header>
+
+  <main class="container">
+    <!-- Карточка 1: Email -->
+    <section class="card" aria-labelledby="email-title">
+      <div class="card-head">
+        <div class="card-badge" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="20" height="16" x="2" y="4" rx="2"/>
+            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+          </svg>
+        </div>
+        <div class="card-head-text">
+          <h2 id="email-title">Проверка email</h2>
+          <p class="notice" role="note">Адрес передаётся сервису XposedOrNot без сохранения в базе приложения.</p>
+        </div>
+      </div>
+
+      <form id="email-form" class="form" novalidate>
+        <label for="email-input" class="sr-only">Email-адрес</label>
+        <div class="input-row">
+          <div class="input-wrap">
+            <svg class="input-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+            </svg>
+            <input
+              id="email-input"
+              name="email"
+              type="email"
+              inputmode="email"
+              autocomplete="email"
+              placeholder="name@company.com"
+              required
+            />
+            <kbd class="shortcut-hint" title="Нажмите / для быстрого фокуса">/</kbd>
+            <button type="button" class="clear-btn" data-clear="email-input" aria-label="Очистить поле" hidden>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 6 6 18M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+          <button type="submit" class="btn">
+            <span>Проверить</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="presets" aria-label="Примеры для быстрой проверки">
+          <span class="presets-label">Пример:</span>
+          <button type="button" class="preset-chip" data-preset-target="email" data-preset-value="test@example.com">test@example.com</button>
+        </div>
+
+        <p class="field-error" id="email-error" hidden></p>
+      </form>
+
+      <div id="email-result" class="result" aria-live="polite"></div>
+    </section>
+
+    <!-- Карточка 2: Домен -->
+    <section class="card" aria-labelledby="domain-title">
+      <div class="card-head">
+        <div class="card-badge" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
+            <path d="M2 12h20"/>
+          </svg>
+        </div>
+        <div class="card-head-text">
+          <h2 id="domain-title">Сводка по домену</h2>
+          <p class="notice" role="note">Показывается агрегированное число утечек без раскрытия отдельных адресов.</p>
+        </div>
+      </div>
+
+      <form id="domain-form" class="form" novalidate>
+        <label for="domain-input" class="sr-only">Домен</label>
+        <div class="input-row">
+          <div class="input-wrap">
+            <svg class="input-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+            </svg>
+            <input
+              id="domain-input"
+              name="domain"
+              type="text"
+              inputmode="url"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="example.com"
+              required
+            />
+            <button type="button" class="clear-btn" data-clear="domain-input" aria-label="Очистить поле" hidden>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 6 6 18M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+          <button type="submit" class="btn">
+            <span>Показать</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="presets" aria-label="Примеры доменов">
+          <span class="presets-label">Пример:</span>
+          <button type="button" class="preset-chip" data-preset-target="domain" data-preset-value="adobe.com">adobe.com</button>
+          <button type="button" class="preset-chip" data-preset-target="domain" data-preset-value="linkedin.com">linkedin.com</button>
+        </div>
+
+        <p class="field-error" id="domain-error" hidden></p>
+      </form>
+
+      <div id="domain-result" class="result" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Данные предоставлены XposedOrNot · Приложение не сохраняет введённые адреса</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
