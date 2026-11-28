@@ -298,6 +298,6 @@ docker compose down
 
 **Personal Data Safety** доступно онлайн.
 
-🔗 **Сайт:** [Открыть Personal Data Safety](ССЫЛКА_НА_RENDER)
+🔗 **Сайт:** [Открыть Personal Data Safety](https://personal-data-safety.onrender.com/)
 
 Приложение позволяет проверять электронную почту на наличие известных утечек данных и получать информацию об утечках по доменам.
