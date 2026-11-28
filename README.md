@@ -240,3 +240,56 @@ npm run test:coverage
 
 # E2E-тесты Playwright
 npm run test:e2e
+
+## Запуск приложения через Docker
+
+Для запуска проекта необходимы Docker Desktop и Docker Compose.
+
+### 1. Клонирование репозитория
+
+```bash
+git clone https://github.com/DimasFantomasA/personal-data-safety.git
+cd personal-data-safety
+```
+
+### 2. Настройка переменных окружения
+
+Создайте файл `.env` на основе `.env.example`:
+
+```bash
+cp .env.example .env
+```
+
+В Windows PowerShell используйте:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Укажите действительные значения `DATABASE_URL` и `EMAIL_CACHE_SECRET`.
+
+Файл `.env` содержит конфиденциальные данные и не должен отправляться в GitHub.
+
+### 3. Запуск приложения
+
+```bash
+docker compose up --build
+```
+
+После успешного запуска приложение будет доступно по адресу:
+
+http://localhost:3000
+
+Для проверки состояния API откройте:
+
+http://localhost:3000/api/health
+
+### 4. Остановка приложения
+
+Нажмите `Ctrl+C` в терминале или выполните:
+
+```bash
+docker compose down
+```
+
+Приложение использует облачную PostgreSQL в Supabase и внешний API XposedOrNot. Для использования общедоступного сайта без локального запуска необходимо отдельно развернуть серверную часть в облаке.
